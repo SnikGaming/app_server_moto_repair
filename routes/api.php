@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -42,7 +43,7 @@ Route::get('categories', [CategoryController::class, 'index']);
 
 
 Route::post('dangky', [UserController::class, 'store']);
-
+Route::post('tests', [TestController::class, 'store']);
 
 Route::post('products', [ProductController::class, 'store']);
 Route::get('products', [ProductController::class, 'index']);

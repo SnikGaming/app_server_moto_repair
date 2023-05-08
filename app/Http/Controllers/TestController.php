@@ -1,16 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUserRequest;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Test;
+use App\Http\Requests\StoreTestRequest;
+use App\Http\Requests\UpdateTestRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class UserController extends Controller
+class TestController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -31,20 +29,16 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request)
+    public function store(StoreTestRequest $request)
     {
         try {
             $imageName = Str::random(32) . "." . $request->image->getClientOriginalExtension();
-            $path = public_path('storage/user');
-            Storage::disk('public')->put("/user/{$imageName}", file_get_contents($request->image));
+            $path = public_path('storage/test');
+            Storage::disk('public')->put("/test/{$imageName}", file_get_contents($request->image));
 
-            User::create([
+            Test::create([
                 'name' => $request->name,
                 'image' => $imageName,
-                'gender' => $request->input('gender', 1),
-                'email' => $request->input('email'),
-                'phone' => $request->input('phone'),
-                'password' => Hash::make($request->input('password')),
             ]);
             return response()->json([
                 'message' => 'create successful'
@@ -56,11 +50,10 @@ class UserController extends Controller
         }
     }
 
-
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show(Test $test)
     {
         //
     }
@@ -68,7 +61,7 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user)
+    public function edit(Test $test)
     {
         //
     }
@@ -76,7 +69,7 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateTestRequest $request, Test $test)
     {
         //
     }
@@ -84,7 +77,7 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(Test $test)
     {
         //
     }
