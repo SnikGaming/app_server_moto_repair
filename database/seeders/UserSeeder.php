@@ -34,21 +34,7 @@ class UserSeeder extends Seeder
                 'image' => '1.jpg',
                 'password' => Hash::make('12345678'),
             ],
-            [
-                'name' => 'Nam Nguyễn',
-                'email' => 'nam@gmail.com',
-                'password' => Hash::make('12345678'),
-            ],
-            [
-                'name' => 'Hải Đào',
-                'email' => 'hai@gmail.com',
-                'password' => Hash::make('12345678'),
-            ],
-            [
-                'name' => 'Phong',
-                'email' => 'phong@gmail.com',
-                'password' => Hash::make('12345678'),
-            ],
+
             [
                 'name' => 'Quân',
                 'email' => 'quan@gmail.com',
