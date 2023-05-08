@@ -24,14 +24,14 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Long Trần',
                 'email' => 'long@gmail.com',
-                'image' => 'user/IMG_20200616_204616.jpg',
+                'image' => '2.jpg',
                 'password' => Hash::make('12345678'),
             ],
             [
                 'name' => 'Trang',
                 'email' => 'trang@gmail.com',
                 'gender' => 0,
-                'image' => 'user/photo_2023-05-08_08-06-41.jpg',
+                'image' => '1.jpg',
                 'password' => Hash::make('12345678'),
             ],
             [
