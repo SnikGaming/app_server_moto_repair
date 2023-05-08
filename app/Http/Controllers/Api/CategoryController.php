@@ -21,7 +21,7 @@ class CategoryController extends Controller
         try {
             $data = Category::select(['id', 'name', 'image', 'status'])->get();
             $data->transform(function ($category) {
-                $category->image = Storage::url($category->image);
+                $category->image = Storage::url("category/{$category->image}");
                 return $category;
             });
             return response()->json([
@@ -51,8 +51,8 @@ class CategoryController extends Controller
     {
         try {
             $imageName = Str::random(32) . "." . $request->image->getClientOriginalExtension();
-            $path = public_path('storage/images');
-            Storage::disk('public')->put("storage/images/{$imageName}", file_get_contents($request->image));
+            $path = public_path('storage/category');
+            Storage::disk('public')->put("/category/{$imageName}", file_get_contents($request->image));
 
             Category::create([
                 'name' => $request->name,
@@ -116,7 +116,7 @@ class CategoryController extends Controller
                     $storege->delete($data->image);
                 }
                 $imageName = Str::random(32) . "." . $request->image->getClientOriginalExtension();
-                $storege->put($imageName, file_get_contents($request->image));
+                $storege->put("/category/{$imageName}", file_get_contents($request->image));
                 $data->image = $imageName;
             }
             $data->save();
