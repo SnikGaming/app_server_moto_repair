@@ -44,6 +44,8 @@ Route::get('categories', [CategoryController::class, 'index']);
 
 Route::post('dangky', [UserController::class, 'store']);
 Route::post('tests', [TestController::class, 'store']);
+Route::get('tests', [TestController::class, 'index']);
+
 
 Route::post('products', [ProductController::class, 'store']);
 Route::get('products', [ProductController::class, 'index']);
@@ -72,6 +74,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('favorites', [FavoriteController::class, 'store']);
     Route::put('favorites/{id}', [FavoriteController::class, 'update']);
     Route::delete('favorites/{id}', [FavoriteController::class, 'destroy']);
+
+    Route::get('dangky', [UserController::class, 'getUserInfo']);
+    Route::post('dangky-up', [UserController::class, 'update']);
 
 
     Route::get('user', function (Request $request) {

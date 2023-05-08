@@ -13,8 +13,26 @@ class TestController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $tests = Test::all();
+
+            $data = $tests->map(function ($test) {
+                return [
+                    'name' => $test->name,
+                    'image' => asset("storage/test/{$test->image}")
+                ];
+            });
+
+            return response()->json([
+                'data' => $data
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Something went really wrong !'
+            ], 500);
+        }
     }
+
 
     /**
      * Show the form for creating a new resource.
