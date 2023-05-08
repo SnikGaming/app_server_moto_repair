@@ -49,25 +49,25 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request)
     {
-        //
         try {
             $imageName = Str::random(32) . "." . $request->image->getClientOriginalExtension();
+            $path = public_path('storage/images');
+            Storage::disk('public')->put("storage/images/{$imageName}", file_get_contents($request->image));
+
             Category::create([
                 'name' => $request->name,
                 'image' => $imageName,
             ]);
-            $path = storage_path('app/public/storage/images');
-            Storage::disk('public')->put($imageName, file_get_contents($request->image), $path);
             return response()->json([
                 'message' => 'create successful'
             ], 200);
         } catch (\Throwable $th) {
-            // return response()->json([
-            //     'message' => 'Something went really wrong !'
-            // ], 500);
-            return $th;
+            return response()->json([
+                'message' => 'Something went really wrong !'
+            ], 500);
         }
     }
+
 
     /**
      * Display the specified resource.
