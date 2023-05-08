@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -49,7 +50,18 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
+
         try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'email' => 'required|email|unique:users',
+                'password' => 'required',
+                'phone' => ['required', 'numeric', 'regex:/^(0[2-9]|(1[2-9]|3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9]))\d{7}$/'],
+                'c_password' => 'required|same:password',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 401);
+            }
             $imageName = Str::random(32) . "." . $request->image->getClientOriginalExtension();
             $path = public_path('storage/user');
             Storage::disk('public')->put("/user/{$imageName}", file_get_contents($request->image));
