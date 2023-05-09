@@ -29,21 +29,38 @@ class UserController extends Controller
     {
         //
     }
-    public function getUserInfo()
+    public function getUserInfo(Request $request)
     {
+        // Kiểm tra xem người dùng đã đăng nhập hay chưa
+        if (!auth()->check()) {
+            return response()->json(['message' => 'Bạn chưa đăng nhập', 'status' => 401], 401);
+        }
+
+        // Lấy thông tin user
         $user = auth()->user();
+
+        // Tải ảnh của user và trả về URL của ảnh
+        $image_url = null;
+        if ($user->image) {
+            $image_url = Storage::url("user/{$user->image}");
+        }
+
+        // Trả về thông tin user và URL của ảnh
         return response()->json([
             'message' => 'Successful',
             'status' => 200,
             'data' => [
+                'id' => $user->id,
+                'address' => $user->address,
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'image' => asset("storage/user/{$user->image}"),
+                'image' => $image_url,
                 'gender' => $user->gender
             ]
         ]);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -72,6 +89,7 @@ class UserController extends Controller
                 'gender' => $request->input('gender', 1),
                 'email' => $request->input('email'),
                 'phone' => $request->input('phone'),
+                'address' => $request->input('address'),
                 'password' => Hash::make($request->input('password')),
             ]);
             return response()->json([
@@ -112,6 +130,8 @@ class UserController extends Controller
             // $user->email = $request->input('email', $user->email);
             $user->phone = $request->input('phone', $user->phone);
             $user->gender = $request->input('gender', $user->gender);
+            $user->address = $request->input('address', $user->address);
+
             if ($request->hasFile('image')) {
                 $storege = Storage::disk('public');
 
@@ -131,7 +151,8 @@ class UserController extends Controller
                     'email' => $user->email,
                     'phone' => $user->phone,
                     'image' => $user->image,
-                    'gender' => $user->gender
+                    'gender' => $user->gender,
+                    'address' => $user->address
                 ]
             ], 200);
         } catch (\Throwable $th) {
