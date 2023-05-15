@@ -79,7 +79,21 @@ class ProductController extends Controller
                     $query->where('price', '<=', $maxPrice);
                 })
                 // ->orderBy('like', 'desc')
-                ->orderByRaw('`number` = 0 asc, `like` desc')
+                // ->orderByRaw('`number` = 0 asc, `like` desc')
+                ->when($request->has('tag'), function ($query) use ($request) {
+                    $tag = $request->input('tag');
+                    if ($tag == 0) {
+                        $query->orderBy('price', 'desc'); //Gia cao den thap
+                    } else if ($tag == 1) {
+                        $query->orderBy('price', 'asc'); //Gia thap den cao
+                    } else if ($tag == 2) {
+                        $query->orderBy('like', 'desc'); //Sp yêu thích nhiều nhất
+                    } else if ($tag == 3) {
+                        $query->orderByRaw('`price` asc, `like` desc'); //Sp yêu thích nhiều nhất và rẻ nhất
+                    } else {
+                        $query->orderByRaw('`number` = 0 asc, `like` desc');
+                    }
+                })
                 ->paginate(20);
 
             $products->getCollection()->transform(function ($product) {
