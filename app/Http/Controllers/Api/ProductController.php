@@ -58,7 +58,9 @@ class ProductController extends Controller
             $products = Product::select('id', 'category_id', 'name', 'image', 'description', 'number', 'price', 'like', 'status')
                 ->when($request->has('category_id'), function ($query) use ($request) {
                     $categoryId = $request->input('category_id');
-                    $query->where('category_id', $categoryId);
+                    if ($categoryId != 1) {
+                        $query->where('category_id', $categoryId);
+                    }
                 })
                 ->when($request->has('search'), function ($query) use ($request) {
                     $search = $request->input('search');
@@ -68,11 +70,6 @@ class ProductController extends Controller
                             ->orWhere('price', 'like', "%{$search}%");
                     });
                 })
-                // ->when($request->has('search'), function ($query) use ($request) {
-                //     $search = $request->input('search');
-                //     $query->where('name', 'like', "%{$search}%")
-                //         ->orWhere('price', 'like', "%{$search}%");
-                // })
                 ->when($request->has('min_price'), function ($query) use ($request) {
                     $minPrice = $request->input('min_price');
                     $query->where('price', '>=', $minPrice);
@@ -81,8 +78,9 @@ class ProductController extends Controller
                     $maxPrice = $request->input('max_price');
                     $query->where('price', '<=', $maxPrice);
                 })
-                ->orderBy('like', 'desc')
-                ->paginate(10);
+                // ->orderBy('like', 'desc')
+                ->orderByRaw('`number` = 0 asc, `like` desc')
+                ->paginate(20);
 
             $products->getCollection()->transform(function ($product) {
                 $product->image = Storage::url($product->image);
