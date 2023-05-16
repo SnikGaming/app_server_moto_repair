@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\AuthController;
@@ -60,7 +61,8 @@ Route::put('/banners/{id}', [BannerController::class, 'update']);
 Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->group(function () {
-
+    Route::get('orders', [OrderController::class, 'index']);
+    Route::post('orders', [OrderController::class, 'store']);
 
 
 
