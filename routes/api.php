@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\OrderDetailController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\AuthController;
@@ -64,9 +65,13 @@ Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('carts', [CartController::class, 'index']);
     Route::post('carts', [CartController::class, 'store']);
-    Route::put('carts/{id}', [CartController::class, 'update']);
+    Route::post('carts/{id}', [CartController::class, 'updateQuantity']);
     Route::get('carts/{id}', [CartController::class, 'show']);
 
+
+    Route::get('orders', [OrderController::class, 'index']);
+    Route::post('orders', [OrderController::class, 'store']);
+    Route::post('orderDetails', [OrderDetailController::class, 'store']);
 
 
     Route::post('bookings', [BookingController::class, 'store']);

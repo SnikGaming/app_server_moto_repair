@@ -46,53 +46,16 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            // 'user_id' => 'required',
-            'product_id' => 'required',
-            // 'status' => 'required',
-            'quantity' => 'required',
-            'price' => 'required',
-            // 'booking_date' => 'required|date',
-            // 'delivery_date' => 'required|date',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
-        }
-
         try {
             $order = new Order();
             $order->user_id = auth()->user()->id;
-            $order->product_id = $request->input('product_id');
-
-            // Lấy giá sản phẩm từ bảng products
-            $product = Product::findOrFail($order->product_id);
-            $order->price = $product->price;
-            // Kiem tra so luong san pham
-            if ($request->input('quantity') > $product->number) {
-                return response()->json([
-                    'message' => "Something went wrong! "
-                ], 500);
-            }
-            $order->quantity = $request->input('quantity');
-
-            $order->total_price = $order->quantity * $order->price;
-
-            // Lưu đơn hàng
             $order->save();
-
-            // Trừ số lượng sản phẩm trong bảng products
-            $product->number -= $order->quantity;
-            $product->save();
 
             return response()->json(['message' => 'Order created successfully'], 200);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => "Something went wrong! $th"
-            ], 500);
+            return response()->json(['message' => 'Something went wrong!'], 500);
         }
     }
-
     /**
      * Display the specified resource.
      */

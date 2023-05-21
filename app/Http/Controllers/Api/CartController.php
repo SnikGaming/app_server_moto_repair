@@ -62,7 +62,7 @@ class CartController extends Controller
             'product_id' => 'required',
             // 'status' => 'required',
             'quantity' => 'required',
-            'price' => 'required',
+            // 'price' => 'required',
             // 'booking_date' => 'required|date',
             // 'delivery_date' => 'required|date',
         ]);
@@ -72,37 +72,50 @@ class CartController extends Controller
         }
 
         try {
-            $order = new Cart();
-            $order->user_id = auth()->user()->id;
-            $order->product_id = $request->input('product_id');
+            $userId = auth()->user()->id;
+            $productId = $request->input('product_id');
+            $quantity = $request->input('quantity');
 
-            // Lấy giá sản phẩm từ bảng products
-            $product = Product::findOrFail($order->product_id);
-            $order->price = $product->price;
-            // Kiem tra so luong san pham
-            if ($request->input('quantity') > $product->number) {
-                return response()->json([
-                    'message' => "Something went wrong! "
-                ], 500);
+            // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng của người dùng
+            $existingCart = Cart::where('user_id', $userId)
+                ->where('product_id', $productId)
+                ->first();
+
+            $product = Product::findOrFail($productId);
+
+            if ($existingCart) {
+                // Nếu sản phẩm đã tồn tại, kiểm tra số lượng tổng cộng
+                $newQuantity = $existingCart->quantity + $quantity;
+
+                if ($newQuantity > $product->number) {
+                    return response()->json(['message' => 'Insufficient product quantity'], 500);
+                }
+
+                $existingCart->quantity = $newQuantity;
+                $existingCart->total_price = $existingCart->quantity * $existingCart->price;
+                $existingCart->save();
+                return response()->json(['message' => 'Product quantity updated in cart'], 200);
+            } else {
+                // Nếu sản phẩm chưa tồn tại, kiểm tra số lượng
+                if ($quantity > $product->number) {
+                    return response()->json(['message' => 'Insufficient product quantity'], 500);
+                }
+
+                $cart = new Cart();
+                $cart->user_id = $userId;
+                $cart->product_id = $productId;
+                $cart->price = $product->price;
+                $cart->quantity = $quantity;
+                $cart->total_price = $quantity * $product->price;
+                $cart->save();
+                return response()->json(['message' => 'Product added to cart'], 200);
             }
-            $order->quantity = $request->input('quantity');
-
-            $order->total_price = $order->quantity * $order->price;
-
-            // Lưu đơn hàng
-            $order->save();
-
-            // Trừ số lượng sản phẩm trong bảng products
-            $product->number -= $order->quantity;
-            $product->save();
-
-            return response()->json(['message' => 'Order created successfully'], 200);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => "Something went wrong! $th"
-            ], 500);
+            return response()->json(['message' => "Something went wrong! $th"], 500);
         }
     }
+
+
 
     /**
      * Display the specified resource.
@@ -131,11 +144,10 @@ class CartController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function updateQuantity(Request $request, $cartId)
     {
         $validator = Validator::make($request->all(), [
             'quantity' => 'required',
-            'price' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -143,43 +155,29 @@ class CartController extends Controller
         }
 
         try {
-            $cart = Cart::findOrFail($id);
+            $userId = auth()->user()->id;
+            $quantity = $request->input('quantity');
 
-            // Lấy giá sản phẩm từ bảng products
+            $cart = Cart::where('user_id', $userId)->findOrFail($cartId);
             $product = Product::findOrFail($cart->product_id);
-            $cart->price = $product->price;
 
-            // Lưu số lượng sản phẩm hiện tại
-            $oldQuantity = $cart->quantity;
+            // Tính số lượng mới
+            $newQuantity = $quantity;
 
-            // Cập nhật số lượng sản phẩm trong giỏ hàng
-            $cart->quantity = $request->input('quantity');
-            $cart->total_price = $cart->quantity * $cart->price;
-
-            // Tính toán sự thay đổi về số lượng sản phẩm
-            $quantityChange = $cart->quantity - $oldQuantity;
-
-            // Kiểm tra số lượng sản phẩm tăng
-            if ($quantityChange > 0 && $quantityChange > $product->number) {
-                return response()->json([
-                    'message' => "Something went wrong! The product does not have enough quantity."
-                ], 500);
+            if ($newQuantity > $product->number) {
+                return response()->json(['message' => 'Insufficient product quantity'], 500);
             }
 
-            // Lưu cập nhật vào bảng cart
-            $cart->update();
+            $cart->quantity = $newQuantity;
+            $cart->total_price = $cart->quantity * $cart->price;
+            $cart->save();
 
-            // Cập nhật số lượng sản phẩm trong bảng products
-            $product->number -= $quantityChange;
-            $product->save();
-
-            return response()->json(['message' => 'Cart updated successfully'], 200);
+            return response()->json(['message' => 'Cart quantity updated'], 200);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => "Something went wrong! $th"
-            ], 500);
+            return response()->json(['message' => "Something went wrong! $th"], 500);
         }
     }
+
 
 
     /**

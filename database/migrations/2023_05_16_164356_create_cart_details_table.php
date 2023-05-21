@@ -12,10 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('cart_details', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('order_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('product_id');
             $table->tinyInteger('status')->default(1);
+            $table->integer('quantity');
+            $table->string('price');
             $table->integer('total_price')->default(0);
             $table->dateTime('booking_date')->default(Carbon::now());
             $table->dateTime('delivery date')->default(Carbon::now());
@@ -28,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('cart_details');
     }
 };
