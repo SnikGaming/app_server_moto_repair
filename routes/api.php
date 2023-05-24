@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\Delivery_addressController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
@@ -63,6 +64,13 @@ Route::put('/banners/{id}', [BannerController::class, 'update']);
 Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('address', [Delivery_addressController::class, 'store']);
+    Route::post('address_del/{id}', [Delivery_addressController::class, 'destroy']);
+
+    Route::get('address', [Delivery_addressController::class, 'index']);
+
+
+
     Route::get('carts', [CartController::class, 'index']);
     Route::post('carts_del', [CartController::class, 'destroy']);
 
