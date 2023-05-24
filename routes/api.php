@@ -64,6 +64,8 @@ Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('carts', [CartController::class, 'index']);
+    Route::post('carts_del', [CartController::class, 'destroy']);
+
     Route::post('carts', [CartController::class, 'store']);
     Route::post('carts/{id}', [CartController::class, 'updateQuantity']);
     Route::get('carts/{id}', [CartController::class, 'show']);

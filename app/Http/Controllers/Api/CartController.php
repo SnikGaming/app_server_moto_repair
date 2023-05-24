@@ -184,8 +184,41 @@ class CartController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Cart $cart)
+    public function destroy(Request $request)
     {
-        //
+        // {
+        //     "cart": [
+        //       {
+        //         "id": 1
+        //       },
+        //       {
+        //         "id": 2
+        //       },
+        //       {
+        //         "id": 3
+        //       }
+        //     ]
+        //   }
+        try {
+            $cartList = $request->input('cart');
+
+            // Lấy danh sách ID giỏ hàng từ mảng danh sách giỏ hàng
+            $cartIds = collect($cartList)->pluck('id')->all();
+
+            // Kiểm tra xem giỏ hàng có thuộc về người dùng hiện tại hay không
+            $userCartIds = Cart::where('user_id', auth()->user()->id)
+                ->whereIn('id', $cartIds)
+                ->pluck('id');
+
+            // Lọc ra các ID giỏ hàng thuộc về người dùng hiện tại
+            $validCartIds = $userCartIds->all();
+
+            // Xóa giỏ hàng
+            Cart::whereIn('id', $validCartIds)->delete();
+
+            return response()->json(['message' => 'Carts deleted'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete carts'], 500);
+        }
     }
 }
