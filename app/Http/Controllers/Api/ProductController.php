@@ -149,16 +149,30 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $data = Product::find($id);
-        if (!$data) {
+        try {
+            $product = Product::join('categories', 'products.category_id', '=', 'categories.id')
+                ->select('products.id', 'products.category_id', 'categories.name as category_name', 'products.name', 'products.image', 'products.description', 'products.number', 'products.price', 'products.like', 'products.status')
+                ->where('products.id', $id)
+                ->first();
+
+            if (!$product) {
+                return response()->json([
+                    'message' => 'Product not found'
+                ], 404);
+            }
+
+            $product->image = Storage::url($product->image);
+
             return response()->json([
-                'message' => 'Category not found'
-            ], 404);
+                'data' => $product
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => "Something went wrong! $th"
+            ], 500);
         }
-        return response()->json([
-            'data' => $data
-        ], 200);
     }
+
 
     /**
      * Show the form for editing the specified resource.

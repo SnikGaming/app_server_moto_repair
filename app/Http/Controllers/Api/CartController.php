@@ -25,6 +25,7 @@ class CartController extends Controller
         $userOrders->getCollection()->transform(function ($order) {
             $product = Product::findOrFail($order->product_id);
             $order->image = Storage::url($product->image);
+            $order->product_name = $product->name;
             return $order;
         });
 

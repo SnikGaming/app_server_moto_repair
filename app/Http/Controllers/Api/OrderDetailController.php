@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class OrderDetailController extends Controller
@@ -30,35 +31,107 @@ class OrderDetailController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    public function getOrderDetails(Request $request)
+    {
+        $perPage = $request->per_page ?? 10;
+        $searchOrderId = $request->input('order_id');
+
+        $query = OrderDetail::where('user_id', auth()->user()->id);
+
+        if ($searchOrderId) {
+            $query->where('order_id', $searchOrderId);
+        }
+
+        $userOrderDetails = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        // Lấy thông tin sản phẩm và tên cho từng order detail
+        $userOrderDetails->getCollection()->transform(function ($orderDetail) {
+            $product = Product::findOrFail($orderDetail->product_id);
+            $orderDetail->product = $product;
+            $orderDetail->product_name = $product->name;
+            return $orderDetail;
+        });
+
+        $currentPageItemCount = count($userOrderDetails->items());
+        $totalItemCount = $userOrderDetails->total();
+        $data = [
+            'status' => 200,
+            'data' => $userOrderDetails->items(),
+            'current_page' => $userOrderDetails->currentPage(),
+            'last_page' => $userOrderDetails->lastPage(),
+            'per_page' => $perPage,
+            'total_items' => $totalItemCount,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            // 'product_id' => 'required',
-            // 'quantity' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
-        }
+        $requestData = $request->json()->all();
 
         try {
-            $orderDetail = new OrderDetail();
-            $orderDetail->order_id = 0; // Để trống, sẽ được cập nhật sau khi tạo đơn hàng
-            $orderDetail->product_id = $request->input('product_id');
-            $orderDetail->quantity = $request->input('quantity');
+            DB::beginTransaction();
 
-            $product = Product::findOrFail($orderDetail->product_id);
-            if ($orderDetail->quantity > $product->number) {
-                return response()->json(['message' => 'Something went wrong! 1'], 500);
+            $order = new Order();
+            $order->user_id = auth()->user()->id;
+            // $order->order_id = null;
+            $order->save();
+
+            $orderDetails = $requestData['order_details'];
+            $invalidQuantityProducts = []; // Mảng lưu các sản phẩm số lượng không hợp lệ
+
+            foreach ($orderDetails as $orderDetailData) {
+                if (isset($orderDetailData['product_id']) && isset($orderDetailData['quantity'])) {
+                    $product = Product::findOrFail($orderDetailData['product_id']);
+                    $orderDetailQuantity = $orderDetailData['quantity'];
+
+                    if ($orderDetailQuantity > $product->number) {
+                        // Số lượng trong order detail lớn hơn số lượng có sẵn trong bảng product
+                        $invalidQuantityProducts[] = $product->name;
+                    } else {
+                        $orderDetail = new OrderDetail();
+                        $orderDetail->user_id = auth()->user()->id;
+                        $orderDetail->order_id = $order->id;
+                        $orderDetail->product_id = $orderDetailData['product_id'];
+                        $orderDetail->quantity = $orderDetailQuantity;
+                        $orderDetail->price = $product->price;
+                        $orderDetail->status = 1;
+
+                        $orderDetail->save();
+
+                        // Trừ số lượng sản phẩm trong bảng Product
+                        $product->number -= $orderDetailQuantity;
+                        $product->save();
+                    }
+                }
             }
-            $orderDetail->price = $product->price;
-            $orderDetail->save();
-            $product->save();
-            return response()->json(['message' => 'Order created successfully'], 200);
-        } catch (\Throwable $th) {
-            return response()->json(['message' => 'Something went wrong! 2 ', 'error' => $th], 500);
+
+            if (!empty($invalidQuantityProducts)) {
+                // Hủy bỏ giao dịch nếu có sản phẩm số lượng không hợp lệ
+                DB::rollBack();
+
+                // Trả về thông báo về sản phẩm số lượng không hợp lệ
+                $message = 'Số lượng không hợp lệ cho các sản phẩm sau: ' . implode(', ', $invalidQuantityProducts);
+                return response()->json(['message' => $message], 400);
+            }
+
+            DB::commit(); // Lưu các thay đổi vào cơ sở dữ liệu
+
+            return response()->json(['message' => 'Đơn hàng đã được lưu'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Hủy bỏ giao dịch nếu có lỗi xảy ra
+
+            // Trả về thông báo lỗi
+            return response()->json(['message' => 'Đã xảy ra lỗi trong quá trình lưu đơn hàng'], 500);
         }
     }
+
+
+
+
+
 
     /**
      * Display the specified resource.
