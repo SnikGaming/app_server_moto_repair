@@ -90,6 +90,11 @@ class OrderDetailController extends Controller
             $order->address = $request->input('address');
             $order->name = $request->input('name');
             $order->note = $request->input('note');
+            $order->booking_date = $request->input('date_order');
+            $order->delivery_date = $request->input('delivery_date');
+
+
+
             $order->save();
             $deliveryAddress = Delivery_address::where('user_id', auth()->user()->id)->first();
             $orderDetails = $requestData['order_details'];
@@ -110,7 +115,9 @@ class OrderDetailController extends Controller
                         $orderDetail->order_id = $order->id;
                         $orderDetail->product_id = $orderDetailData['product_id'];
                         $orderDetail->quantity = $orderDetailQuantity;
-                        $orderDetail->price = $product->price;
+                        $orderDetail->price = $orderDetailData['price'];
+
+                        // $orderDetail->price = $product->price;
                         $orderDetail->status = 1;
                         $orderDetail->save();
 
@@ -119,7 +126,7 @@ class OrderDetailController extends Controller
                         $product->save();
 
                         // Tính giá của sản phẩm và cộng vào tổng giá của đơn hàng
-                        $productPrice = $product->price * $orderDetailQuantity;
+                        $productPrice =   $orderDetail->price * $orderDetailQuantity;
                         $totalPrice += $productPrice;
                         if ($deliveryAddress) {
                             $totalPrice += $deliveryAddress->ship;

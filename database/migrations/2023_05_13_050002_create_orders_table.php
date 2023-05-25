@@ -22,7 +22,7 @@ return new class extends Migration
             $table->Text('note')->nullable();
             $table->integer('ship')->default(0);
             $table->dateTime('booking_date')->default(Carbon::now());
-            $table->dateTime('delivery date')->default(Carbon::now());
+            $table->dateTime('delivery_date')->default(Carbon::now());
             $table->timestamps();
         });
     }
