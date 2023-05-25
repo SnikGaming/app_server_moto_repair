@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Delivery_address;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -52,6 +54,14 @@ class OrderDetailController extends Controller
             return $orderDetail;
         });
 
+        // Lấy thông tin user cho mỗi order
+        $userOrderDetails->getCollection()->transform(function ($orderDetail) {
+            $order = Order::findOrFail($orderDetail->order_id);
+            $user = User::findOrFail($order->user_id);
+            $orderDetail->user = $user;
+            return $orderDetail;
+        });
+
         $currentPageItemCount = count($userOrderDetails->items());
         $totalItemCount = $userOrderDetails->total();
         $data = [
@@ -63,8 +73,9 @@ class OrderDetailController extends Controller
             'total_items' => $totalItemCount,
         ];
 
-        return response()->json($data, 200);
+        return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
+
 
 
     public function store(Request $request)
@@ -76,11 +87,14 @@ class OrderDetailController extends Controller
 
             $order = new Order();
             $order->user_id = auth()->user()->id;
-            // $order->order_id = null;
+            $order->address = $request->input('address');
+            $order->name = $request->input('name');
+            $order->note = $request->input('note');
             $order->save();
-
+            $deliveryAddress = Delivery_address::where('user_id', auth()->user()->id)->first();
             $orderDetails = $requestData['order_details'];
             $invalidQuantityProducts = []; // Mảng lưu các sản phẩm số lượng không hợp lệ
+            $totalPrice = 0; // Tổng giá của đơn hàng
 
             foreach ($orderDetails as $orderDetailData) {
                 if (isset($orderDetailData['product_id']) && isset($orderDetailData['quantity'])) {
@@ -98,12 +112,18 @@ class OrderDetailController extends Controller
                         $orderDetail->quantity = $orderDetailQuantity;
                         $orderDetail->price = $product->price;
                         $orderDetail->status = 1;
-
                         $orderDetail->save();
 
                         // Trừ số lượng sản phẩm trong bảng Product
                         $product->number -= $orderDetailQuantity;
                         $product->save();
+
+                        // Tính giá của sản phẩm và cộng vào tổng giá của đơn hàng
+                        $productPrice = $product->price * $orderDetailQuantity;
+                        $totalPrice += $productPrice;
+                        if ($deliveryAddress) {
+                            $totalPrice += $deliveryAddress->ship;
+                        }
                     }
                 }
             }
@@ -117,6 +137,10 @@ class OrderDetailController extends Controller
                 return response()->json(['message' => $message], 400);
             }
 
+            // Cập nhật total_price của đơn hàng
+            $order->total_price = $totalPrice;
+            $order->save();
+
             DB::commit(); // Lưu các thay đổi vào cơ sở dữ liệu
 
             return response()->json(['message' => 'Đơn hàng đã được lưu'], 200);
@@ -127,6 +151,7 @@ class OrderDetailController extends Controller
             return response()->json(['message' => 'Đã xảy ra lỗi trong quá trình lưu đơn hàng'], 500);
         }
     }
+
 
 
 

@@ -18,7 +18,9 @@ return new class extends Migration
             $table->tinyInteger('status')->default(1);
             $table->integer('total_price')->default(0);
             $table->Text('address')->default(0);
-
+            $table->String('name')->default(0);
+            $table->Text('note')->nullable();
+            $table->integer('ship')->default(0);
             $table->dateTime('booking_date')->default(Carbon::now());
             $table->dateTime('delivery date')->default(Carbon::now());
             $table->timestamps();

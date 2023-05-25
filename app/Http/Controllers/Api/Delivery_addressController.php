@@ -31,8 +31,9 @@ class Delivery_addressController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
+            'name' => 'required|string',
             'address' => 'required|string',
-            'phone_number' => 'required|string',
+            'phone_number' => 'required|string', 'ship' => 'string'
         ]);
 
         $validatedData['user_id'] = auth()->user()->id;
