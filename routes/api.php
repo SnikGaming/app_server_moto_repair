@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TestController;
@@ -64,6 +65,18 @@ Route::put('/banners/{id}', [BannerController::class, 'update']);
 Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    //! Review
+    Route::post('reviews', [ReviewController::class, 'store']);
+    Route::get('reviews/{id}', [ReviewController::class, 'getByProductId']);
+    Route::post('reviews_update/{id}', [ReviewController::class, 'update']);
+    Route::post('reviews_del/{id}', [ReviewController::class, 'destroy']);
+
+
+
+
+
+    //! Address
     Route::post('address', [Delivery_addressController::class, 'store']);
     Route::post('address_del/{id}', [Delivery_addressController::class, 'destroy']);
 
