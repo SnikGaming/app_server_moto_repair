@@ -29,6 +29,7 @@ class ReviewController extends Controller
             ->where('product_id', $id)
             ->leftJoin('users', 'reviews.user_id', '=', 'users.id')
             ->select('reviews.*', 'users.name', 'users.image')
+            ->orderBy('created_at', 'desc') // Sort by created_at in descending order
             ->paginate($perPage, ['*'], 'page', $page);
 
         // Iterate through the reviews to get the URL of the user's image
@@ -60,6 +61,7 @@ class ReviewController extends Controller
 
 
 
+
     /**
      * Show the form for creating a new resource.
      */
@@ -77,6 +79,8 @@ class ReviewController extends Controller
             'product_id' => 'required|exists:products,id',
             'comment' => 'nullable|string',
             'rating' => 'required|integer|min:0|max:5',
+            'time' => 'required|string',
+
         ]);
 
         $user = auth()->user();

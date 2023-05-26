@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('product_id');
+            $table->string('time');
             $table->text('comment')->nullable();
             $table->unsignedTinyInteger('rating')->default(0);
             $table->timestamps();
