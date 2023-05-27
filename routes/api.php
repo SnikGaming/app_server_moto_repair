@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\Delivery_addressController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
 use App\Http\Controllers\Api\ProductController;
@@ -38,7 +39,11 @@ Route::middleware(['auth'])->group(function () {
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
-
+//! Location
+Route::get('provinces', [LocationController::class, 'getProvinces']);
+Route::get('districts/{provinceId}', [LocationController::class, 'getDistrictsByProvince']);
+Route::get('wards/{districtId}', [LocationController::class, 'getWardsByDistrict']);
+Route::get('location', [LocationController::class, 'getData']);
 
 
 Route::post('categories', [CategoryController::class, 'store']);
