@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -88,6 +89,36 @@ class OrderController extends Controller
 
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
+
+    public function getOrderCountByStatus()
+    {
+        // Khởi tạo mảng trạng thái mặc định
+        $defaultStatus = [0, 1, 2, 3];
+
+        // Lấy số lượng theo trạng thái từ bảng Order
+        $statusCounts = Order::where('user_id', auth()->user()->id)
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        // Đảm bảo tồn tại mục nhập cho các trạng thái mặc định
+        foreach ($defaultStatus as $status) {
+            if (!array_key_exists($status, $statusCounts)) {
+                $statusCounts[$status] = 0;
+            }
+        }
+
+        // Định dạng lại kết quả
+        $formattedCounts = [];
+        foreach ($statusCounts as $status => $count) {
+            $formattedCounts["status_$status"] = $count;
+        }
+
+        return response()->json(['status' => 200, 'data' => $formattedCounts]);
+    }
+
+
 
 
     /**
