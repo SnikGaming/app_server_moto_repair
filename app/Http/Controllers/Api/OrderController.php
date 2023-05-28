@@ -15,10 +15,15 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+
     // public function index(Request $request)
     // {
     //     $perPage = $request->per_page ?? 10;
-    //     $userOrders = Order::where('user_id', auth()->user()->id)
+    //     $userOrders = Order::with(['user' => function ($query) {
+    //         $query->select('id', 'name', 'image', 'gender', 'email', 'phone', 'address');
+    //     }])
+    //         ->where('user_id', auth()->user()->id)
     //         ->orderBy('created_at', 'desc')
     //         ->paginate($perPage);
 
@@ -48,46 +53,77 @@ class OrderController extends Controller
     //         'total_items' => $totalItemCount,
     //     ];
 
-    //     return response()->json($data, 200);
+    //     return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     // }
 
     public function index(Request $request)
     {
-        $perPage = $request->per_page ?? 10;
-        $userOrders = Order::with(['user' => function ($query) {
-            $query->select('id', 'name', 'image', 'gender', 'email', 'phone', 'address');
-        }])
-            ->where('user_id', auth()->user()->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+        try {
+            $perPage = $request->per_page ?? 10;
+            $status = $request->status;
 
-        // Lấy thông tin sản phẩm cho từng order
-        $userOrders->getCollection()->transform(function ($order) {
-            $orderDetails = OrderDetail::where('order_id', $order->id)->get();
+            $query = Order::with(['user' => function ($query) {
+                $query->select('id', 'name', 'image', 'gender', 'email', 'phone', 'address');
+            }])
+                ->where('user_id', auth()->user()->id)
+                ->orderBy('created_at', 'desc');
 
-            // Lấy thông tin chi tiết cho từng sản phẩm
-            $orderDetails->transform(function ($orderDetail) {
-                $product = Product::findOrFail($orderDetail->product_id);
-                $orderDetail->product = $product;
-                return $orderDetail;
+            if ($status) {
+                $query->where('status', $status);
+            }
+
+            $userOrders = $query->paginate($perPage);
+
+            // Load product information for each order
+            $userOrders->getCollection()->transform(function ($order) {
+                $orderDetails = OrderDetail::where('order_id', $order->id)->get();
+
+                // Load detailed information for each product
+                $orderDetails->transform(function ($orderDetail) {
+                    $product = Product::findOrFail($orderDetail->product_id);
+                    $orderDetail->product = $product;
+                    return $orderDetail;
+                });
+
+                $order->product = $orderDetails;
+                return $order;
             });
 
-            $order->product = $orderDetails;
-            return $order;
-        });
+            $currentPageItemCount = count($userOrders->items());
+            $totalItemCount = $userOrders->total();
+            $data = [
+                'status' => 200,
+                'data' => $userOrders->items(),
+                'current_page' => $userOrders->currentPage(),
+                'last_page' => $userOrders->lastPage(),
+                'per_page' => $perPage,
+                'total_items' => $totalItemCount,
+            ];
 
-        $currentPageItemCount = count($userOrders->items());
-        $totalItemCount = $userOrders->total();
-        $data = [
+            return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
+
+    public function getOrdersByStatus($status)
+    {
+        $orderDetails = OrderDetail::with('order', 'order.product')
+            ->whereHas('order', function ($query) use ($status) {
+                $query->where('status', $status)
+                    ->where('user_id', auth()->user()->id);
+            })
+            ->paginate(10);
+
+        return response()->json([
             'status' => 200,
-            'data' => $userOrders->items(),
-            'current_page' => $userOrders->currentPage(),
-            'last_page' => $userOrders->lastPage(),
-            'per_page' => $perPage,
-            'total_items' => $totalItemCount,
-        ];
-
-        return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
+            'data' => $orderDetails->items(),
+            'current_page' => $orderDetails->currentPage(),
+            'last_page' => $orderDetails->lastPage(),
+            'per_page' => $orderDetails->perPage(),
+            'total_items' => $orderDetails->total(),
+        ]);
     }
 
     public function getOrderCountByStatus()
