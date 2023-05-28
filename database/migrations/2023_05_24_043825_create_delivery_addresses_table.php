@@ -16,6 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('name');
             $table->integer('ship')->default(0);
+            $table->unsignedBigInteger('idProvince');
+            $table->unsignedBigInteger('idDistrict');
+            $table->unsignedBigInteger('idWard');
             $table->string('address');
             $table->string('phone_number');
             $table->timestamps();

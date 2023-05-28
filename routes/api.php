@@ -84,11 +84,11 @@ Route::middleware('auth:sanctum')->group(function () {
     //! Address
     Route::post('address', [Delivery_addressController::class, 'store']);
     Route::post('address_del/{id}', [Delivery_addressController::class, 'destroy']);
-
+    Route::post('address/{id}', [Delivery_addressController::class, 'update']);
     Route::get('address', [Delivery_addressController::class, 'index']);
 
 
-
+    //! Cart
     Route::get('carts', [CartController::class, 'index']);
     Route::post('carts_del', [CartController::class, 'destroy']);
 
@@ -96,14 +96,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('carts/{id}', [CartController::class, 'updateQuantity']);
     Route::get('carts/{id}', [CartController::class, 'show']);
 
-
+    //! Order
     Route::get('orders', [OrderController::class, 'index']);
     Route::post('orders', [OrderController::class, 'store']);
     Route::post('orderDetails', [OrderDetailController::class, 'store']);
     Route::get('orderDetails', [OrderDetailController::class, 'getOrderDetails']);
 
 
-
+    //! Booking 
     Route::post('bookings', [BookingController::class, 'store']);
     Route::get('bookings', [BookingController::class, 'index']);
     Route::put('bookings/{id}', [BookingController::class, 'update']);

@@ -13,8 +13,31 @@ class Delivery_addressController extends Controller
      */
     public function index()
     {
-        $deliveryAddresses = Delivery_address::where('user_id', auth()->user()->id)->get();
-        return response()->json(['data' => $deliveryAddresses]);
+        $deliveryAddresses = Delivery_address::with(['province', 'district', 'ward'])
+            ->where('user_id', auth()->user()->id)
+            ->get();
+
+        // Tạo mảng mới để chứa dữ liệu đã mở rộng với tên của tỉnh, huyện và phường
+        $formattedAddresses = [];
+        foreach ($deliveryAddresses as $address) {
+            $formattedAddress = [
+                'id' => $address->id,
+                'name' => $address->name,
+                'phone_number' => $address->phone_number,
+                'address' => $address->address,
+                'idProvince' => $address->province->province_id,
+                'province' => $address->province->name,
+                'idDistrict' => $address->district->district_id,
+
+                'district' => $address->district->name,
+                'idWard' => $address->ward->wards_id,
+
+                'ward' => $address->ward->name,
+            ];
+            $formattedAddresses[] = $formattedAddress;
+        }
+
+        return response()->json(['data' => $formattedAddresses]);
     }
 
     /**
@@ -31,13 +54,19 @@ class Delivery_addressController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
+            'idProvince' => 'required|integer',
+            'idDistrict' => 'required|integer',
+            'idWard' => 'required|integer',
             'name' => 'required|string',
+            'phone_number' => 'required|string',
             'address' => 'required|string',
-            'phone_number' => 'required|string', 'ship' => 'string'
+            'ship' => 'integer'
         ]);
 
+        // Lấy ID người dùng hiện tại từ Auth
         $validatedData['user_id'] = auth()->user()->id;
 
+        // Tạo địa chỉ giao hàng mới
         $deliveryAddress = Delivery_address::create($validatedData);
 
         return response()->json(['message' => 'Delivery address created', 'data' => $deliveryAddress]);
@@ -66,21 +95,34 @@ class Delivery_addressController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Delivery_address $deliveryAddress)
+    public function update(Request $request, $id)
     {
-        if ($deliveryAddress->user_id != auth()->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         $validatedData = $request->validate([
-            'address' => 'required|string',
+            'idProvince' => 'required|integer',
+            'idDistrict' => 'required|integer',
+            'idWard' => 'required|integer',
+            'name' => 'required|string',
             'phone_number' => 'required|string',
+            'address' => 'required|string',
+            'ship' => 'integer'
         ]);
 
+        // Find the delivery address by ID and user ID
+        $deliveryAddress = Delivery_address::where('id', $id)
+            ->where('user_id', auth()->user()->id)
+            ->first();
+
+        // If the delivery address does not exist or does not belong to the authenticated user, return an error response
+        if (!$deliveryAddress) {
+            return response()->json(['error' => 'Delivery address not found'], 404);
+        }
+
+        // Update the delivery address with the validated data
         $deliveryAddress->update($validatedData);
 
         return response()->json(['message' => 'Delivery address updated', 'data' => $deliveryAddress]);
     }
+
 
 
     /**
