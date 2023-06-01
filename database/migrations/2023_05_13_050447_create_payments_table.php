@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('users_id')->constrained();
-            $table->foreignId('orders_id')->constrained();
-            $table->string('payment_methods');
-            $table->string('image');
-            $table->decimal('amount');
-            $table->timestamp('payment_of_day');
+            $table->String('name');
+            $table->String('image');
+            // $table->foreignId('users_id')->constrained();
+            // $table->foreignId('orders_id')->constrained();
+            // $table->string('payment_methods');
+            // $table->string('image');
+            // $table->decimal('amount');
+            // $table->timestamp('payment_of_day');
             $table->timestamps();
         });
     }
