@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('users_id')->constrained();
             $table->foreignId('orders_id')->constrained();
             $table->string('payment_methods');
+            $table->string('image');
             $table->decimal('amount');
             $table->timestamp('payment_of_day');
             $table->timestamps();

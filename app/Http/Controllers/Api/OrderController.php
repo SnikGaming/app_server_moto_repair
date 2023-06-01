@@ -129,7 +129,7 @@ class OrderController extends Controller
     public function getOrderCountByStatus()
     {
         // Khởi tạo mảng trạng thái mặc định
-        $defaultStatus = [0, 1, 2, 3];
+        $defaultStatus = [0, 1, 2, 3, 4];
 
         // Lấy số lượng theo trạng thái từ bảng Order
         $statusCounts = Order::where('user_id', auth()->user()->id)
