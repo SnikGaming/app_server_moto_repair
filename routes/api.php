@@ -82,9 +82,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('reviews_del/{id}', [ReviewController::class, 'destroy']);
 
 
-
-
-
     //! Address
     Route::post('address', [Delivery_addressController::class, 'store']);
     Route::post('address_del/{id}', [Delivery_addressController::class, 'destroy']);
@@ -112,7 +109,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     //! Booking 
-    Route::post('bookings', [BookingController::class, 'store']);
+    Route::post('bookings', [BookingController::class, 'createBooking']);
     Route::get('bookings', [BookingController::class, 'index']);
     Route::put('bookings/{id}', [BookingController::class, 'update']);
     Route::put('bookings/{id}/status', [BookingController::class, 'updateBookingStatus'])->name('bookings.update.status');

@@ -14,39 +14,39 @@ class BookingController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index(Request $request)
     {
-        $perPage = $request->per_page ?? 10;
+        $bookingDate = $request->booking_date ? Carbon::parse($request->booking_date)->format('Y-m-d') : null;
 
-        if ($request->has('booking_date')) {
-            $bookingDate = Carbon::parse($request->booking_date)->format('Y-m-d');
-            $userBookings = Booking::where('customer_id', auth()->user()->id)
-                ->whereDate('booking_time', $bookingDate)
-                ->where('status', true) // Thêm điều kiện trạng thái
-                ->orderBy('booking_time', 'desc')
-                ->paginate($perPage);
-        } else {
-            $userBookings = Booking::where('customer_id', auth()->user()->id)
-                ->where('status', true) // Thêm điều kiện trạng thái
-                ->orderBy('booking_time', 'desc')
-                ->paginate($perPage);
-        }
+        $userBookings = Booking::where('customer_id', auth()->user()->id)
+            ->when($bookingDate, function ($query) use ($bookingDate) {
+                return $query->whereDate('booking_time', $bookingDate);
+            })
+            ->where('status', true)
+            ->orderByDesc('created_at') // Sắp xếp theo thời gian từ mới nhất đến cũ nhất
+            ->get();
 
-        $currentPageItemCount = count($userBookings->items());
-        $totalItemCount = $userBookings->total();
+        $updatedBookings = $userBookings->map(function ($booking) {
+            $bookingTime = Carbon::parse($booking->booking_time)->startOfDay();
+            $currentTime = Carbon::now()->startOfDay();
+
+            if ($bookingTime->gt($currentTime)) {
+                $booking->color = '2'; // Lớn hơn ngày hiện tại
+            } elseif ($bookingTime->eq($currentTime)) {
+                $booking->color = '1'; // Trùng ngày hiện tại
+            } else {
+                $booking->color = '0'; // Nhỏ hơn ngày hiện tại
+            }
+
+            return $booking;
+        });
 
         $data = [
             'status' => 200,
-            'data' => $userBookings->items(),
-            'current_page' => $userBookings->currentPage(),
-            'last_page' => $userBookings->lastPage(),
-            'per_page' => $perPage,
-            'total_items' => $totalItemCount,
+            'data' => $updatedBookings,
+            'total_items' => $updatedBookings->count(),
         ];
-
-        if ($currentPageItemCount >= $totalItemCount) {
-            $data['next_page_url'] = null;
-        }
 
         return response()->json($data, 200);
     }
@@ -127,7 +127,35 @@ class BookingController extends Controller
     {
         //
     }
+    public function createBooking(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'booking_time' => 'required|date',
+            'note' => 'nullable|string'
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 401);
+        }
+
+        try {
+            $booking = new Booking();
+            $booking->customer_id = auth()->user()->id;
+            $booking->mechanic_id = 0;
+            $booking->booking_time = $request->input('booking_time');
+            $booking->note = $request->input('note');
+            $booking->address = $request->input('address');
+            $booking->service = $request->input('service');
+
+            $booking->save();
+
+            return response()->json(['message' => 'Create successful'], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Something went wrong!'
+            ], 500);
+        }
+    }
     /**
      * Show the form for editing the specified resource.
      */
