@@ -87,7 +87,8 @@ class ProductController extends Controller
                     } else if ($tag == 1) {
                         $query->orderBy('price', 'asc'); //Gia thap den cao
                     } else if ($tag == 2) {
-                        $query->orderBy('like', 'desc'); //Sp yêu thích nhiều nhất
+                        $query->orderByRaw('`number` = 0 asc, `like` desc');
+                        // $query->orderBy('like', 'desc'); //Sp yêu thích nhiều nhất
                     } else if ($tag == 3) {
                         $query->orderByRaw('`price` asc, `like` desc'); //Sp yêu thích nhiều nhất và rẻ nhất
                     } else {

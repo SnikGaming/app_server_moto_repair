@@ -123,6 +123,7 @@ class OrderDetailController extends Controller
 
                         // Trừ số lượng sản phẩm trong bảng Product
                         $product->number -= $orderDetailQuantity;
+                        $product->like += $orderDetailQuantity;
                         $product->save();
 
                         // Tính giá của sản phẩm và cộng vào tổng giá của đơn hàng

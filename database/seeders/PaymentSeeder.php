@@ -20,15 +20,10 @@ class PaymentSeeder extends Seeder
                 'name' => 'Thanh toán khi nhận hàng',
                 'image' => 'donation.png'
             ],
-
             [
-                'name' => 'Paypal',
-                'image' => 'paypal.png'
+                'name' => 'Stripe',
+                'image' => 'stripe.png'
             ],
-            [
-                'name' => 'Momo',
-                'image' => 'momo.png'
-            ]
         ];
         foreach ($lsData as $data) {
             Payment::create($data);
