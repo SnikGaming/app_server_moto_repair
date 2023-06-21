@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('total_price')->default(0);
             $table->Text('address')->default(0);
             $table->String('name')->default(0);
+            $table->integer('payment')->default(1);
             $table->Text('note')->nullable();
             $table->integer('ship')->default(0);
             $table->dateTime('booking_date')->default(Carbon::now());

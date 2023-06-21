@@ -18,7 +18,7 @@ class Order extends Model
         'product_id',
         'note', 'name', 'ship',
         'status',
-        'quantity',
+        'quantity', 'payment',
         'price',
         'booking_date',
         'delivery_date',

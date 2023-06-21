@@ -92,11 +92,12 @@ class OrderDetailController extends Controller
             $order->note = $request->input('note');
             $order->booking_date = $request->input('date_order');
             $order->delivery_date = $request->input('delivery_date');
-
+            $order->payment = $request->input('payment');
+            $order->ship = $request->input('ship');
 
 
             $order->save();
-            $deliveryAddress = Delivery_address::where('user_id', auth()->user()->id)->first();
+            // $deliveryAddress = Delivery_address::where('user_id', auth()->user()->id)->first();
             $orderDetails = $requestData['order_details'];
             $invalidQuantityProducts = []; // Mảng lưu các sản phẩm số lượng không hợp lệ
             $totalPrice = 0; // Tổng giá của đơn hàng
@@ -129,9 +130,10 @@ class OrderDetailController extends Controller
                         // Tính giá của sản phẩm và cộng vào tổng giá của đơn hàng
                         $productPrice =   $orderDetail->price * $orderDetailQuantity;
                         $totalPrice += $productPrice;
-                        if ($deliveryAddress) {
-                            $totalPrice += $deliveryAddress->ship;
-                        }
+                        $totalPrice += $order->ship;
+                        // if ($deliveryAddress) {
+                        //     $totalPrice += $deliveryAddress->ship;
+                        // }
                     }
                 }
             }
