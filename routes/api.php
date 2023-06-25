@@ -75,6 +75,10 @@ Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::get('sp', [ProductController::class, 'getData']);
+
+
+
     //! Review
     Route::post('reviews', [ReviewController::class, 'store']);
     Route::get('reviews/{id}', [ReviewController::class, 'getByProductId']);

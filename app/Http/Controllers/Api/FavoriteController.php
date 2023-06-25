@@ -34,6 +34,7 @@ class FavoriteController extends Controller
 
         // Nếu sản phẩm đã tồn tại trong danh sách yêu thích của user thì trả về lỗi
         if ($favorite) {
+            $favorite->delete();
             return response()->json(['status' => 400, 'message' => 'Product is already in favorites'], 400);
         }
 
