@@ -56,6 +56,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'image' => $image_url,
+                'score' => $user->score,
                 'gender' => $user->gender
             ]
         ]);
