@@ -118,7 +118,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         try {
-               $products = Product::select('id', 'category_id', 'name', 'image', 'description', 'number', 'price', 'like', 'status')
+            $products = Product::select('id', 'category_id', 'name', 'image', 'description', 'number', 'price', 'like', 'status')
                 ->when($request->has('category_id'), function ($query) use ($request) {
                     $categoryId = $request->input('category_id');
                     if ($categoryId != 1) {
@@ -229,6 +229,36 @@ class ProductController extends Controller
 
             return response()->json([
                 'data' => $product
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => "Something went wrong! $th"
+            ], 500);
+        }
+    }
+    public function showDataById(Request $request)
+    {
+        try {
+            $productIds = $request->input('product_ids');
+
+            $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
+                ->select('products.id', 'products.category_id', 'categories.name as category_name', 'products.name', 'products.image', 'products.description', 'products.number', 'products.price', 'products.like', 'products.status')
+                ->whereIn('products.id', $productIds)
+                ->get();
+
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'message' => 'No products found'
+                ], 404);
+            }
+
+            $products->transform(function ($product) {
+                $product->image = Storage::url($product->image);
+                return $product;
+            });
+
+            return response()->json([
+                'data' => $products
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
