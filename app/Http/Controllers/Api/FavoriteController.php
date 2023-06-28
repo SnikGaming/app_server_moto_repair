@@ -16,14 +16,20 @@ class FavoriteController extends Controller
             ->where('favorites.user_id', auth()->user()->id)
             ->select('favorites.id', 'favorites.user_id', 'favorites.product_id', 'products.name', 'products.price', 'products.image', 'products.like')
             ->orderBy('favorites.created_at', 'desc')
-            ->get()
-            ->map(function ($favorite) {
-                $favorite->image = Storage::url($favorite->image);
-                return $favorite;
-            });
+            ->paginate(20);
 
-        return response()->json(['status' => 200, 'data' => $favorites], 200);
+        $favorites->getCollection()->transform(function ($favorite) {
+            $favorite->image = Storage::url($favorite->image);
+            return $favorite;
+        });
+
+        return response()->json([
+            'data' => $favorites->items(),
+            'total_pages' => $favorites->lastPage(),
+            'current_page' => $favorites->currentPage()
+        ], 200);
     }
+
 
     public function store(Request $request)
     {

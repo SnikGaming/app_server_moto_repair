@@ -118,7 +118,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         try {
-            $products = Product::select('id', 'category_id', 'name', 'image', 'description', 'number', 'price', 'like', 'status')
+               $products = Product::select('id', 'category_id', 'name', 'image', 'description', 'number', 'price', 'like', 'status')
                 ->when($request->has('category_id'), function ($query) use ($request) {
                     $categoryId = $request->input('category_id');
                     if ($categoryId != 1) {
