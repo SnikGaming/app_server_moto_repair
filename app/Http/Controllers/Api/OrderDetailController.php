@@ -78,6 +78,10 @@ class OrderDetailController extends Controller
 
 
 
+
+
+
+
     public function store(Request $request)
     {
         $requestData = $request->json()->all();

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -55,7 +56,45 @@ class OrderController extends Controller
 
     //     return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     // }
+    public function huyDonHang($orderId)
+    {
+        // Kiểm tra xem id order có tồn tại trong cơ sở dữ liệu không
+        $order = Order::find($orderId);
+        if (!$order || $order->status == 2) {
+            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+        }
+        // if ($order->status == 2) {
+        //     return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+        // }
+        $lsData = OrderDetail::where('order_id', $orderId)->get();
 
+        // return response()->json(['message' => $orderDetails], 404);
+        try {
+            foreach ($lsData as $orderDetail) {
+                $product = Product::find($orderDetail->product_id);
+
+                if ($product) {
+                    // return response()->json(['message' => $product], 200);
+                    // Trả lại số lượng sản phẩm và giảm like
+                    $product->number += $orderDetail->quantity;
+                    $product->like--;
+                    $product->save();
+                }
+            }
+            if ($order->payment == 2) {
+                $user = User::find($order->user_id);
+                if ($user) {
+                    $user->score += $order->total_price;
+                    $user->save();
+                }
+            }
+            $order->status = 2;
+            $order->save();
+            return response()->json(['message' => 'Đã hủy đơn hàng và trả lại số lượng sản phẩm'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Đã xảy ra lỗi trong quá trình hủy đơn hàng'], 500);
+        }
+    }
     public function index(Request $request)
     {
         try {

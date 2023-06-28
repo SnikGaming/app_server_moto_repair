@@ -109,6 +109,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('orders_status', [OrderController::class, 'getOrderCountByStatus']);
 
     Route::post('orderDetails', [OrderDetailController::class, 'store']);
+    Route::post('huy/{orderId}', [OrderController::class, 'huyDonHang']);
+
     Route::get('orderDetails', [OrderDetailController::class, 'getOrderDetails']);
 
 
