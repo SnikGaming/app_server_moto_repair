@@ -24,6 +24,10 @@ class PaymentSeeder extends Seeder
                 'name' => 'Stripe',
                 'image' => 'stripe.png'
             ],
+            [
+                'name' => 'Ví của tôi',
+                'image' => 'donation.png'
+            ],
         ];
         foreach ($lsData as $data) {
             Payment::create($data);
