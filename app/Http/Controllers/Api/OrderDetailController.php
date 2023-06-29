@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class OrderDetailController extends Controller
@@ -79,6 +80,46 @@ class OrderDetailController extends Controller
 
 
 
+
+    public function getOrderProducts(Request $request, $order_id)
+    {
+        $order = Order::with('orderDetails')->findOrFail($order_id);
+
+        $productIds = $order->orderDetails->pluck('product_id');
+
+        $products = Product::whereIn('id', $productIds)
+            ->select('id', 'name', 'image', 'number', 'price')
+            ->get();
+
+        $products->transform(function ($product) {
+            $product->image = Storage::url($product->image);
+            return $product;
+        });
+
+        $orderProducts = [];
+        foreach ($order->orderDetails as $orderDetail) {
+            $product = $products->where('id', $orderDetail->product_id)->first();
+
+            $orderProduct = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image' => $product->image,
+                'number' => $product->number,
+                'price' => $product->price,
+
+                'quantity' => $orderDetail->quantity,
+            ];
+
+            $orderProducts[] = $orderProduct;
+        }
+
+        $response = [
+            "status" => 200,
+            'data' => $orderProducts,
+        ];
+
+        return response()->json($response);
+    }
 
 
 

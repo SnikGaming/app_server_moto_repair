@@ -61,7 +61,7 @@ Route::get('tests', [TestController::class, 'index']);
 Route::post('products', [ProductController::class, 'store']);
 Route::get('products', [ProductController::class, 'index']);
 Route::get('products/{id}', [ProductController::class, 'show']);
-Route::get('show', [ProductController::class, 'showDataById']);
+Route::post('getProductById', [ProductController::class, 'showDataById']);
 
 
 Route::post('login', [AuthController::class, 'login']);
@@ -111,6 +111,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('orders_status', [OrderController::class, 'getOrderCountByStatus']);
 
     Route::post('orderDetails', [OrderDetailController::class, 'store']);
+    Route::get('orderDetails/{order_id}', [OrderDetailController::class, 'getOrderProducts']);
+
     Route::post('huy/{orderId}', [OrderController::class, 'huyDonHang']);
 
     Route::get('orderDetails', [OrderDetailController::class, 'getOrderDetails']);

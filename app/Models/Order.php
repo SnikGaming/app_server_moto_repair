@@ -24,6 +24,11 @@ class Order extends Model
         'booking_date',
         'delivery_date',
     ];
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
+
     public function product()
     {
         return $this->hasMany(OrderDetail::class);
