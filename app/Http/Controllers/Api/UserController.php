@@ -7,6 +7,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -62,6 +63,22 @@ class UserController extends Controller
         ]);
     }
 
+
+    public function updateScore(Request $request)
+    {
+        $request->validate([
+            'score' => 'required|integer',
+        ]);
+
+        $user = Auth::user();
+        $user->score += $request->score;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Score updated successfully',
+            'user' => $user,
+        ]);
+    }
 
     /**
      * Store a newly created resource in storage.

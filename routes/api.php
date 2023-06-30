@@ -133,6 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('dangky', [UserController::class, 'getUserInfo']);
     Route::post('dangky-up', [UserController::class, 'update']);
 
+    Route::post('updateScore', [UserController::class, 'updateScore']);
 
     Route::get('user', function (Request $request) {
         return response()->json(['status' => 200, 'data' => $request->user()], 200);
