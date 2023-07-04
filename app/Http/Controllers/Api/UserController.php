@@ -186,18 +186,29 @@ class UserController extends Controller
             $user = auth()->user();
             $user->name = $request->input('name', $user->name);
             // $user->email = $request->input('email', $user->email);
-            $user->phone = $request->input('phone', $user->phone);
+
+            // Kiểm tra và lưu số điện thoại nếu có
+            $phone = $request->input('phone');
+            if ($phone !== null) {
+                if (!preg_match('/^0\d{9}$/', $phone) || strlen($phone) !== 10) {
+                    return response()->json([
+                        'message' => 'Invalid phone number. Phone number should start with 0 and have exactly 10 digits.'
+                    ], 400);
+                }
+            }
+            $user->phone = $phone;
+
             $user->gender = $request->input('gender', $user->gender);
             $user->address = $request->input('address', $user->address);
 
             if ($request->hasFile('image')) {
-                $storege = Storage::disk('public');
+                $storage = Storage::disk('public');
 
-                if ($storege->exists($user->image)) {
-                    $storege->delete($user->image);
+                if ($storage->exists($user->image)) {
+                    $storage->delete($user->image);
                 }
                 $imageName = Str::random(32) . "." . $request->image->getClientOriginalExtension();
-                $storege->put("/user/{$imageName}", file_get_contents($request->image));
+                $storage->put("/user/{$imageName}", file_get_contents($request->image));
                 $user->image = $imageName;
             }
             $user->save();
@@ -215,10 +226,11 @@ class UserController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Something went really wrong !'
+                'message' => 'Something went really wrong!'
             ], 500);
         }
     }
+
 
 
     /**

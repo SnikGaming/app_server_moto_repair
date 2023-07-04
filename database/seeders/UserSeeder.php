@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
                 'name' => 'Long Trần',
                 'email' => 'long@gmail.com',
                 'image' => '2.jpg',
-                'password' => Hash::make('2502@Long'),
+                'password' => Hash::make('123@Long'),
                 'address' => 'Đồng Tháp'
             ],
             [
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
                 'email' => 'trang@gmail.com',
                 'gender' => 0,
                 'image' => '1.jpg',
-                'password' => Hash::make('0712@Trang'),
+                'password' => Hash::make('123@Trang'), //0712@Trang
                 'address' => 'Bình Phước'
 
             ],
@@ -41,8 +41,8 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Quân',
                 'email' => 'quan@gmail.com',
-                'password' => Hash::make('123'),
-                'address' => 'Tây Ninh'
+                'password' => Hash::make('123@Quan'),
+                // 'address' => 'Tây Ninh'
 
             ],
             // ...
