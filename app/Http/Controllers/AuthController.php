@@ -14,22 +14,36 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email',
             'password' => 'required',
             'c_password' => 'required|same:password',
         ]);
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 401);
         }
+
         $input = $request->all();
         $input['email'] = strtolower($input['email']);
         $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
-        // $success['token'] = $user->createToken('MyApp')->accessToken;
-        // $success['name'] = $user->name;
+        $input['login'] = 1;
 
-        // return response()->json(['success' => $success], 200);
-        return response()->json(['status' => 200, 'message' => 'Register successful'], 200);
+        $existingUser = User::where('email', $input['email'])->first();
+
+        if ($existingUser) {
+            if ($existingUser->login == 2) {
+                // Thực hiện cập nhật dữ liệu người dùng
+                $existingUser->update($input);
+                return response()->json(['status' => 200, 'message' => 'Cập nhật thành công'], 200);
+            } else {
+                return response()->json(['status' => 400, 'message' => 'Tài khoản đã tồn tại'], 400);
+            }
+        }
+
+        // Tạo người dùng mới
+        $user = User::create($input);
+
+        return response()->json(['status' => 200, 'message' => 'Đăng ký thành công'], 200);
     }
 
     public function login(Request $request)

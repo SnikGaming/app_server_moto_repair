@@ -53,7 +53,10 @@ Route::post('categories/{id}', [CategoryController::class, 'update']);
 Route::get('categories', [CategoryController::class, 'index']);
 
 
+//! Đăng ký tài khoảng
 Route::post('dangky', [UserController::class, 'store']);
+Route::post('google', [UserController::class, 'google']);
+
 Route::post('tests', [TestController::class, 'store']);
 Route::get('tests', [TestController::class, 'index']);
 

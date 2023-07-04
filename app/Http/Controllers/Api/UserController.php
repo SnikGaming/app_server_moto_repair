@@ -119,6 +119,46 @@ class UserController extends Controller
             ], 500);
         }
     }
+    public function google(Request $request)
+    {
+        $email = strtolower($request->input('email'));
+
+        $user = User::where('email', $email)->first();
+
+        if ($user) {
+            // Email đã tồn tại
+            $token = $user->createToken('authToken', ['expires_in' => 10])->plainTextToken;
+            return response()->json([
+                'status' => 200,
+                'token' => 'Bearer ' . $token,
+                'id user' => $user->id,
+            ], 200);
+        } else {
+            // Email chưa tồn tại, tạo tài khoản mới
+            $newUser = User::create([
+                'name' => $request->input('name'),
+                'email' => $email,
+                'login' => 2
+                // Thêm các trường dữ liệu khác của người dùng nếu cần thiết
+            ]);
+
+            if ($newUser) {
+
+                $token = $newUser->createToken('authToken', ['expires_in' => 10])->plainTextToken;
+                return response()->json([
+                    'status' => 200,
+                    'token' => 'Bearer ' . $token,
+                    'id user' => $newUser->id,
+                ], 200);
+            } else {
+                return response()->json([
+                    'exists' => false,
+                    'message' => 'Failed to create a new account.',
+                ], 500);
+            }
+        }
+    }
+
 
 
     /**
