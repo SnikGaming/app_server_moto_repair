@@ -84,42 +84,43 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request)
-    {
+    // public function store(StoreUserRequest $request)
+    // {
 
-        try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'email' => 'required|email|unique:users',
-                'password' => 'required',
-                'phone' => ['required', 'numeric', 'regex:/^(0[2-9]|(1[2-9]|3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9]))\d{7}$/'],
-                'c_password' => 'required|same:password',
-            ]);
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 401);
-            }
-            $imageName = Str::random(32) . "." . $request->image->getClientOriginalExtension();
-            $path = public_path('storage/user');
-            Storage::disk('public')->put("/user/{$imageName}", file_get_contents($request->image));
+    //     try {
 
-            User::create([
-                'name' => $request->name,
-                'image' => $imageName,
-                'gender' => $request->input('gender', 1),
-                'email' => $request->input('email'),
-                'phone' => $request->input('phone'),
-                'address' => $request->input('address'),
-                'password' => Hash::make($request->input('password')),
-            ]);
-            return response()->json([
-                'message' => 'create successful'
-            ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Something went really wrong !'
-            ], 500);
-        }
-    }
+    //         $validator = Validator::make($request->all(), [
+    //             'name' => 'required',
+    //             'email' => 'required|email|unique:users',
+    //             'password' => 'required',
+    //             'phone' => ['required', 'numeric', 'regex:/^(0[2-9]|(1[2-9]|3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9]))\d{7}$/'],
+    //             'c_password' => 'required|same:password',
+    //         ]);
+    //         if ($validator->fails()) {
+    //             return response()->json(['error' => $validator->errors()], 401);
+    //         }
+    //         $imageName = Str::random(32) . "." . $request->image->getClientOriginalExtension();
+    //         $path = public_path('storage/user');
+    //         Storage::disk('public')->put("/user/{$imageName}", file_get_contents($request->image));
+
+    //         User::create([
+    //             'name' => $request->name,
+    //             'image' => $imageName,
+    //             'gender' => $request->input('gender', 1),
+    //             'email' => $request->input('email'),
+    //             'phone' => $request->input('phone'),
+    //             'address' => $request->input('address'),
+    //             'password' => Hash::make($request->input('password')),
+    //         ]);
+    //         return response()->json([
+    //             'message' => 'create successful'
+    //         ], 200);
+    //     } catch (\Throwable $th) {
+    //         return response()->json([
+    //             'message' => 'Something went really wrong !'
+    //         ], 500);
+    //     }
+    // }
     public function google(Request $request)
     {
         $email = strtolower($request->input('email'));

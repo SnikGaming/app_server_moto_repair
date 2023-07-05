@@ -38,6 +38,8 @@ Route::middleware(['auth'])->group(function () {
     // Các route cần authentication
 });
 
+
+//! Login and Register
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
@@ -61,7 +63,7 @@ Route::get('categories', [CategoryController::class, 'index']);
 
 
 //! Đăng ký tài khoảng
-Route::post('dangky', [UserController::class, 'store']);
+// Route::post('dangky', [UserController::class, 'store']);
 Route::post('google', [UserController::class, 'google']);
 Route::post('forgotPassword', [UserController::class, 'forgotPassword']);
 
@@ -142,6 +144,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('favorites/{id}', [FavoriteController::class, 'update']);
     Route::delete('favorites/{id}', [FavoriteController::class, 'destroy']);
 
+
+    //! User
     Route::get('dangky', [UserController::class, 'getUserInfo']);
     Route::post('dangky-up', [UserController::class, 'update']);
 
