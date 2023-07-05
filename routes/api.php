@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
+use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReviewController;
@@ -39,6 +40,12 @@ Route::middleware(['auth'])->group(function () {
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
+
+//! Otp
+Route::post('otp', [OtpController::class, 'addOtp']);
+Route::post('otp-check', [OtpController::class, 'checkOtp']);
+
+
 
 //! Location
 Route::get('provinces', [LocationController::class, 'getProvinces']);

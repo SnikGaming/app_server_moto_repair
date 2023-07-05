@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Otp;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class OtpController extends Controller
 {
@@ -14,6 +17,54 @@ class OtpController extends Controller
     public function index()
     {
         //
+    }
+    public function addOtp(Request $request)
+    {
+        try {
+            $email = $request->input('email');
+            // Kiểm tra xem email đã tồn tại trong bảng User hay chưa
+            $existingUser = User::where('email', $email)->exists();
+            if ($existingUser) {
+                // Xóa các bản ghi có cùng email trong bảng Otp trước khi tạo bản ghi mới
+                Otp::where('email', $email)->delete();
+
+                $otp = new Otp();
+                $otp->email = $email;
+                $otp->otp = $request->input('otp'); // Hàm generateOtp() là hàm tạo mã OTP
+                $otp->created_at = Carbon::now(); // Gán giá trị cho trường created_at
+                $otp->save();
+
+                return response()->json([
+                    'message' => 'OTP added successfully',
+                ], 200);
+            }
+            return response()->json([
+                'message' => 'Email already exists',
+            ], 404);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+    public function checkOtp(Request $request)
+    {
+        try {
+            $email = $request->input('email');
+            $otp = $request->input('otp');
+
+            $otpRecord = Otp::where('email', $email)->where('otp', $otp)->first();
+
+            if ($otpRecord) {
+                return response()->json([
+                    'message' => 'OTP is valid',
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'Invalid OTP',
+            ], 404);
+        } catch (\Throwable $th) {
+            return $th;
+        }
     }
 
     /**
