@@ -54,11 +54,11 @@ class OtpController extends Controller
             $otpRecord = Otp::where('email', $email)->where('otp', $otp)->first();
 
             if ($otpRecord) {
+                $otpRecord->delete();
                 return response()->json([
                     'message' => 'OTP is valid',
                 ], 200);
             }
-
             return response()->json([
                 'message' => 'Invalid OTP',
             ], 404);
