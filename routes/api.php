@@ -42,7 +42,10 @@ Route::middleware(['auth'])->group(function () {
 //! Login and Register
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
-
+//! Đăng ký tài khoảng
+// Route::post('dangky', [UserController::class, 'store']);
+Route::post('google', [UserController::class, 'google']);
+Route::post('forgotPassword', [UserController::class, 'forgotPassword']);
 //! Otp
 Route::post('otp', [OtpController::class, 'addOtp']);
 Route::post('otp-check', [OtpController::class, 'checkOtp']);
@@ -62,10 +65,7 @@ Route::post('categories/{id}', [CategoryController::class, 'update']);
 Route::get('categories', [CategoryController::class, 'index']);
 
 
-//! Đăng ký tài khoảng
-// Route::post('dangky', [UserController::class, 'store']);
-Route::post('google', [UserController::class, 'google']);
-Route::post('forgotPassword', [UserController::class, 'forgotPassword']);
+
 
 
 Route::post('tests', [TestController::class, 'store']);
