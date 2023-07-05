@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -176,7 +177,33 @@ class UserController extends Controller
     {
         //
     }
+    public function forgotPassword(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+            ]);
 
+            $user = DB::table('users')->where('email', $request->email)->first();
+
+            if ($user) {
+                $input['password'] = bcrypt($request->input('password'));
+                DB::table('users')->where('email', $request->email)->update($input);
+
+                return response()->json([
+                    'message' => 'Password updated successfully',
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'An error occurred',
+            ], 500);
+        }
+    }
     /**
      * Update the specified resource in storage.
      */

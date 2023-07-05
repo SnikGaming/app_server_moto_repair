@@ -63,6 +63,8 @@ Route::get('categories', [CategoryController::class, 'index']);
 //! Đăng ký tài khoảng
 Route::post('dangky', [UserController::class, 'store']);
 Route::post('google', [UserController::class, 'google']);
+Route::post('forgotPassword', [UserController::class, 'forgotPassword']);
+
 
 Route::post('tests', [TestController::class, 'store']);
 Route::get('tests', [TestController::class, 'index']);
