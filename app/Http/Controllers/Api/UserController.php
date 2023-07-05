@@ -182,6 +182,11 @@ class UserController extends Controller
         try {
             $request->validate([
                 'email' => 'required|email',
+                'password' => [
+                    'required',
+                    'confirmed',
+                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/'
+                ],
             ]);
 
             $user = DB::table('users')->where('email', $request->email)->first();
@@ -200,7 +205,7 @@ class UserController extends Controller
             ], 404);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'An error occurred',
+                'message' => 'An error occurred: ' . $th->getMessage(),
             ], 500);
         }
     }
