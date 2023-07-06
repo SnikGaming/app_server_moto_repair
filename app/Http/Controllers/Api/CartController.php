@@ -20,14 +20,16 @@ class CartController extends Controller
         $userOrders = Cart::where('user_id', auth()->user()->id)
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
-
+        $number = 0;
         // Lấy hình ảnh của các sản phẩm
         $userOrders->getCollection()->transform(function ($order) {
             $product = Product::findOrFail($order->product_id);
             $order->image = Storage::url($product->image);
             $order->product_name = $product->name;
+            $order->number = $product->number; // Lấy số lượng của sản phẩm
             return $order;
         });
+
 
         $currentPageItemCount = count($userOrders->items());
         $totalItemCount = $userOrders->total();
@@ -38,6 +40,7 @@ class CartController extends Controller
             'last_page' => $userOrders->lastPage(),
             'per_page' => $perPage,
             'total_items' => $totalItemCount,
+
         ];
 
         return response()->json($data, 200);
