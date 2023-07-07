@@ -172,10 +172,10 @@ class UserController extends Controller
     }
     public function checkMail(Request $request)
     {
-        $user = DB::table('users')->where('email', $request->email)->first();
-        $type = DB::table('users')->where('login', 1)->first();
+        // $user = DB::table('users')->where('email', $request->email)->first();
+        $type = DB::table('users')->where('login', 1)->where('email', $request->email)->first();
 
-        if ($user && $type) { // Kiểm tra cả hai điều kiện
+        if ($type) { // Kiểm tra cả hai điều kiện
             return response()->json([
                 'message' => 'Email tồn tại và login = 1',
             ], 200);

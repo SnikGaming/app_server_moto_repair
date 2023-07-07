@@ -23,24 +23,25 @@ class OtpController extends Controller
         try {
             $email = $request->input('email');
             // Kiểm tra xem email đã tồn tại trong bảng User hay chưa
-            $existingUser = User::where('email', $email)->exists();
-            if ($existingUser) {
-                // Xóa các bản ghi có cùng email trong bảng Otp trước khi tạo bản ghi mới
-                Otp::where('email', $email)->delete();
+            // $existingUser = User::where('email', $email)->exists();
+            // if ($existingUser) {
+            //     // Xóa các bản ghi có cùng email trong bảng Otp trước khi tạo bản ghi mới
 
-                $otp = new Otp();
-                $otp->email = $email;
-                $otp->otp = $request->input('otp'); // Hàm generateOtp() là hàm tạo mã OTP
-                $otp->created_at = Carbon::now(); // Gán giá trị cho trường created_at
-                $otp->save();
+            // }
+            Otp::where('email', $email)->delete();
 
-                return response()->json([
-                    'message' => 'OTP added successfully',
-                ], 200);
-            }
+            $otp = new Otp();
+            $otp->email = $email;
+            $otp->otp = $request->input('otp'); // Hàm generateOtp() là hàm tạo mã OTP
+            $otp->created_at = Carbon::now(); // Gán giá trị cho trường created_at
+            $otp->save();
+
             return response()->json([
-                'message' => 'Email already exists',
-            ], 404);
+                'message' => 'OTP added successfully',
+            ], 200);
+            // return response()->json([
+            //     'message' => 'Email already exists',
+            // ], 404);
         } catch (\Throwable $th) {
             return $th;
         }
