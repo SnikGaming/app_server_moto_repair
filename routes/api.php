@@ -46,6 +46,8 @@ Route::post('register', [AuthController::class, 'register']);
 // Route::post('dangky', [UserController::class, 'store']);
 Route::post('google', [UserController::class, 'google']);
 Route::post('forgotPassword', [UserController::class, 'forgotPassword']);
+Route::post('checkMail', [UserController::class, 'checkMail']);
+
 //! Otp
 Route::post('otp', [OtpController::class, 'addOtp']);
 Route::post('otp-check', [OtpController::class, 'checkOtp']);
@@ -147,6 +149,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //! User
     Route::get('dangky', [UserController::class, 'getUserInfo']);
+
     Route::post('dangky-up', [UserController::class, 'update']);
 
     Route::post('updateScore', [UserController::class, 'updateScore']);

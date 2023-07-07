@@ -170,7 +170,18 @@ class UserController extends Controller
     {
         //
     }
-
+    public function checkMail(Request $request)
+    {
+        $user = DB::table('users')->where('email', $request->email)->first();
+        if ($user) {
+            return response()->json([
+                'message' => 'Email tồn tại',
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'Email không tồn tại',
+        ], 404);
+    }
     /**
      * Show the form for editing the specified resource.
      */
