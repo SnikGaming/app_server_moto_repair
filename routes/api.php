@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\WalletController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
@@ -120,6 +121,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('carts', [CartController::class, 'store']);
     Route::post('carts/{id}', [CartController::class, 'updateQuantity']);
     Route::get('carts/{id}', [CartController::class, 'show']);
+
+    //! Wallet
+    Route::post('wallets/create', [WalletController::class, 'createWallet']);
+    Route::post('wallet/deposit', [WalletController::class, 'deposit']);
+
+    Route::post('wallet/withdraw', [WalletController::class, 'withdraw']);
+
+
 
     //! Order
     Route::get('orderstatus/{status}', [OrderController::class, 'getOrdersByStatus']);
