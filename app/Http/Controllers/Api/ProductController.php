@@ -174,6 +174,61 @@ class ProductController extends Controller
             return $th;
         }
     }
+    public function search(Request $request)
+    {
+        try {
+            $products = Product::select('id', 'category_id', 'name', 'image', 'description', 'number', 'price', 'like', 'status')
+                ->when($request->has('category_id'), function ($query) use ($request) {
+                    $categoryId = $request->input('category_id');
+                    if ($categoryId != 1) {
+                        $query->where('category_id', $categoryId);
+                    }
+                })
+                ->when($request->has('search'), function ($query) use ($request) {
+                    $search = $request->input('search');
+                    $query->where(function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%")
+                            ->orWhere('description', 'like', "%{$search}%")
+                            ->orWhere('price', 'like', "%{$search}%");
+                    });
+                })
+                ->when($request->has('min_price'), function ($query) use ($request) {
+                    $minPrice = $request->input('min_price');
+                    $query->where('price', '>=', $minPrice);
+                })
+                ->when($request->has('max_price'), function ($query) use ($request) {
+                    $maxPrice = $request->input('max_price');
+                    $query->where('price', '<=', $maxPrice);
+                })
+                ->when($request->has('tag'), function ($query) use ($request) {
+                    $tag = $request->input('tag');
+                    if ($tag == 0) {
+                        $query->orderBy('price', 'desc'); //Gia cao den thap
+                    } else if ($tag == 1) {
+                        $query->orderBy('price', 'asc'); //Gia thap den cao
+                    } else if ($tag == 2) {
+                        $query->orderByRaw('`number` = 0 asc, `like` desc');
+                        // $query->orderBy('like', 'desc'); //Sp yêu thích nhiều nhất
+                    } else if ($tag == 3) {
+                        $query->orderByRaw('`price` asc, `like` desc'); //Sp yêu thích nhiều nhất và rẻ nhất
+                    } else {
+                        $query->orderByRaw('`number` = 0 asc, `like` desc');
+                    }
+                })
+                ->get();
+
+            $products->transform(function ($product) {
+                $product->image = Storage::url($product->image);
+                return $product;
+            });
+
+            return response()->json([
+                'data' => $products,
+            ], 200);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
 
     /**
      * Show the form for creating a new resource.
